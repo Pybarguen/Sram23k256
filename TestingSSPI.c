@@ -32,7 +32,6 @@
 
 #include <xc.h>
 #include "SSPI.h"
-#include "lcd.h"
 #include <stdio.h>
 int lectura;
 char data[];
@@ -60,16 +59,31 @@ void Sram_write(char dato, int address)
     
 }
 
-void Sram_read()
+void Sram_read(int address)
 {
     
-    ;
+   PORTCbits.RC0 = 0;//Activo el exclavo CC    
+     __delay_us(10);
+     SSPBUF = 0x03;//Instruccion de escritura
+     
+        __delay_us(10);   
+        SSPBUF = (address>>8) & 0xFF;//Parte alta de la direccion  
+      __delay_us(10);        
+       SSPBUF =  address & 0xFF;//Parte baja  de la direccion   
+       __delay_us(10); 
+        SSPBUF = 0x00;//Dato
+          __delay_us(10);          
+     PORTB = SSPBUF;
+      PORTCbits.RC0 = 1;//Desactivo el exclavo
+     
     
 }
 
 
 void main(void) {
     int data = 0;
+    TRISB = 0x00;
+    PORTB = 0X00;
     TRISCbits.TRISC0 = 0;//Pin CC de seleccion exclavo como salida
     PORTCbits.RC0 = 1;//Disable el exclavo CC
      TRISD = 0x00;  
@@ -77,12 +91,9 @@ void main(void) {
     Sspi_Init();
     SSpi_Clock_Source(Sspi_Fosc_4);
     Sspi_work_Cpol_Cpha(clock_low_rising_edge);
-    Lcd_Init(); 
-      Lcd_Clear();
-       Lcd_Set_Cursor(1, 1);
-       sprintf(data, "Bienvenidoa");
-        
-        Lcd_Clear();
+     
+     
+       
         for(int i = 0; i<=100; i++)
         {
             Sram_write(data, i); 
@@ -101,13 +112,7 @@ void main(void) {
        
       
            
-      /*
-    
-     Lcd_Set_Cursor(1, 1);
-    sprintf(data, "Int A %d",lectura);
-    Lcd_Write_String(data);
-      __delay_ms(50);
-       */       
+   Sram_read(10);
     
      
  }
