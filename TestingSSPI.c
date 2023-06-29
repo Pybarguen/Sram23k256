@@ -60,7 +60,12 @@ void Sram_write(char dato, int address)
     
 }
 
-
+void Sram_read()
+{
+    
+    ;
+    
+}
 
 
 void main(void) {
